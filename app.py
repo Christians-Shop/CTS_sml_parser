@@ -68,21 +68,10 @@ def ratelimit_handler(e):
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-# Check if running on Azure AppService
-if os.getenv("ORYX_ENV_TYPE") == "AppService":
-    from azure.monitor.opentelemetry import configure_azure_monitor
-    from opentelemetry.instrumentation.flask import FlaskInstrumentor
-    
-    configure_azure_monitor(logger_name="cts-sml-parser")
-    FlaskInstrumentor().instrument_app(app)
-    logger = logging.getLogger("cts-sml-parser")
-    logger.setLevel(logging.DEBUG)
-else:
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 
 @app.route("/")
