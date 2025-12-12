@@ -98,16 +98,33 @@ class TasmotaSMLParser:
         except TypeError:
             precision = 0
 
+        # Konvertiere Wh zu kWh
+        is_wh = unit == "Wh"
+        if is_wh:
+            unit = "kWh"
+            # Erhöhe die Präzision um 3 Stellen, da wir durch 1000 teilen
+            precision = max(0, precision + 3)
+
         try:
+            calculated_value = msg.value * pow(10, msg.scaler)
+            # Wenn Wh, durch 1000 teilen für kWh
+            if is_wh:
+                calculated_value = calculated_value / 1000.0
             human_readable = (
-                f"{round(msg.value * pow(10, msg.scaler), precision)}{unit} ({name})"
+                f"{round(calculated_value, precision)}{unit} ({name})"
             )
         except TypeError:
             try:
-                human_readable = f"{msg.value}{unit} ({name})"
+                display_value = msg.value
+                if is_wh:
+                    display_value = msg.value / 1000.0 if msg.value is not None else None
+                human_readable = f"{display_value}{unit} ({name})"
             except:
                 try:
-                    human_readable = f"{msg.value}{unit}"
+                    display_value = msg.value
+                    if is_wh:
+                        display_value = msg.value / 1000.0 if msg.value is not None else None
+                    human_readable = f"{display_value}{unit}"
                 except:
                     try:
                         human_readable = f"{msg.value}"
