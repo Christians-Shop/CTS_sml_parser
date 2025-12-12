@@ -146,13 +146,17 @@ class TasmotaSMLParser:
             "scaler": msg.scaler,
             "value_signature": msg.value_signature,
             "human_readable": human_readable,
+            "was_wh": is_wh,  # Flag: ursprünglich Wh, jetzt zu kWh konvertiert
         }
 
         return data
 
     def build_meter_def(self, msg):
         data = self.get_message_details(msg)
-        return f"1,7707{data['obis'].upper()}@1,{data['name']},{data['unit']},{data['topic']},{data['precision']}"
+        # Wenn von Wh zu kWh konvertiert wurde, verwende @1000 statt @1
+        # Tasmota teilt dann den Originalwert durch 1000, um kWh zu erhalten
+        scale_factor = "1000" if data.get("was_wh", False) else "1"
+        return f"1,7707{data['obis'].upper()}@{scale_factor},{data['name']},{data['unit']},{data['topic']},{data['precision']}"
 
     def build_full_meter_def(self, messages):
         """Build complete Tasmota meter definition from all messages"""
