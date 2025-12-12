@@ -139,9 +139,10 @@ class TasmotaSMLParser:
 
     def build_full_meter_def(self, messages):
         """Build complete Tasmota meter definition from all messages"""
-        lines = ["M 1", "+1,3,s,0,9600,"]
+        lines = [">D", ">B", "=>sensor53 r", ">M 1", "+1,3,s,0,9600,SML,1"]
         for msg in messages:
             lines.append(self.build_meter_def(msg))
+        lines.append("#")
         return "\n".join(lines)
 
     def get_serializable_errors(self):
